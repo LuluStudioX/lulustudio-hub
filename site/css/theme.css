@@ -1,0 +1,71 @@
+/* theme.css - the design system for the LuluStudio hub.
+   Every color, font, size, space, and radius lives here as a named CSS variable,
+   so the whole look changes from one file. Visual style: getcaveman.dev (dark cave,
+   numbered sections, monospace credentials) + the LuluStudio house palette.
+   Names are semantic on purpose: use --color-accent, not a raw hex, in the styles. */
+:root {
+  /* ── color: surfaces (darkest page to lightest inset) ── */
+  --color-bg: #0b0a09;          /* page background */
+  --color-card: #131311;        /* project / bot cards */
+  --color-elevated: #111210;    /* code blocks, raised panels */
+  --color-inset: #191917;       /* badges, inline code, bar fills */
+
+  /* ── color: borders ── */
+  --color-border: #252523;
+  --color-border-strong: #34332f;
+
+  /* ── color: text (brightest heading to faintest caption) ── */
+  --color-heading: #f3efe7;
+  --color-text: #ddd8cd;
+  --color-text-muted: #aaa498;
+  --color-text-faint: #837e72;
+
+  /* ── color: accent (ochre / amber, the interactive color) ── */
+  --color-accent: #d6a052;
+  --color-accent-bright: #e8b766;             /* hover */
+  --color-accent-soft: rgba(214, 160, 82, 0.12);
+  --color-accent-faint: rgba(214, 160, 82, 0.06);
+
+  /* ── color: status ── */
+  --color-live: #8aa86b;                       /* muted green: success / sparkline */
+  --color-live-bright: #a6e27a;                /* vivid green: live indicator */
+  --color-live-soft: rgba(138, 168, 107, 0.12);
+  --color-warn: #c2705a;
+
+  /* ── typography ── */
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+
+  --font-size-hero: clamp(2rem, 5.5vw, 3.6rem);
+  --font-size-title: clamp(1.5rem, 3vw, 2.1rem);
+  --font-size-subtitle: clamp(1.1rem, 1.6vw, 1.35rem);
+  --font-size-body: clamp(0.95rem, 1.05vw, 1.05rem);
+  --font-size-small: 0.85rem;
+  --font-size-code: 0.82rem;
+
+  --line-height-tight: 1.15;
+  --line-height-normal: 1.62;
+
+  /* ── spacing scale (t-shirt sizes for a consistent rhythm) ── */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --section-padding: clamp(3.5rem, 8vw, 6rem);
+
+  /* ── layout ── */
+  --max-width: 1140px;
+  --nav-height: clamp(52px, 4vw, 68px);
+
+  /* ── radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+}
