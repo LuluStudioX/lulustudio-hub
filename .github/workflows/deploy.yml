@@ -1,0 +1,115 @@
+name: Deploy hub to GitHub Pages
+
+# The site is hand-written static files in site/ (no build step). This workflow refreshes the
+# project card data, then force-pushes the whole site as ONE orphan commit to the gh-pages
+# branch, which GitHub Pages serves at projects.lulustudio.dk.
+#
+# Why a branch deploy instead of actions/deploy-pages: the artifact-based deploy staged the whole
+# site (release binaries included, ~0.7 GB) in Actions artifact storage on EVERY run - at the
+# 15-min schedule that piled up ~20 GB/day, exhausted the account artifact quota and broke every
+# upload account-wide. A branch deploy uses no artifact storage at all, and the branch always
+# holds exactly one commit so the repo never grows with history.
+#
+# Requires the STATS_TOKEN secret, a PUBLIC repo (Pages on the free plan) and Settings -> Pages
+#   source = Deploy from a branch: gh-pages, / (root).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 0-8,10-23 * * *'
+    - cron: '17 9 * * *'
+
+permissions:
+  contents: write # force-push the gh-pages branch
+  actions: write  # sweep GitHub's internal pages-build-deployment artifacts
+
+# Never run two deploys at once; let the latest win.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # Run JavaScript actions on Node 24 (GitHub retires Node 20 on the runners 2026-06-16).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # GitHub's internal pages-build-deployment workflow (branch -> Pages) stages the whole site
+      # as a "github-pages" artifact (~750 MB with the mirrored binaries). Pages serves from its
+      # own storage once deployed, so stale copies only eat the Actions artifact quota - the exact
+      # failure mode this workflow was redesigned to avoid. Sweep copies older than 6 hours; a
+      # deployment finishes in minutes, so anything older is guaranteed dead weight.
+      - name: Sweep stale Pages artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name == "github-pages" and (.created_at | fromdateiso8601) < (now - 21600)) | .id' |
+          while read -r id; do
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" >/dev/null \
+              && echo "deleted stale pages artifact $id"
+          done
+
+      # Re-fetch live repo data (stars, languages, commit activity, latest release) for the
+      # project cards so site/js/data.js never goes stale. STATS_TOKEN: fine-grained PAT,
+      # resource owner LuluStudioX, all (or the showcased) repositories, Contents: Read-only.
+      # Without the secret the committed data.js ships as-is.
+      - name: Refresh project card data
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          if [ -z "$STATS_TOKEN" ]; then
+            echo "::warning::STATS_TOKEN not set - project card stats stay as committed"
+            exit 0
+          fi
+          GH_TOKEN="$STATS_TOKEN" node tools/generate-data.mjs ||
+            echo "::warning::card data refresh failed (STATS_TOKEN expired or lacks repo access?) - shipping committed data.js"
+
+      - name: Publish site to gh-pages branch
+        run: |
+          # CNAME keeps the custom domain bound for branch-based Pages; .nojekyll skips the
+          # pointless Jekyll pass over an already-static site.
+          echo "projects.lulustudio.dk" > site/CNAME
+          touch site/.nojekyll
+
+          # Content stamp over every served byte. If gh-pages already carries this exact stamp,
+          # there is nothing to deploy - the 15-min schedule is a safety net and usually no-ops.
+          stamp=$(cd site && find . -type f ! -name STAMP -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+          if git fetch --depth 1 origin gh-pages 2>/dev/null && \
+             [ "$(git show FETCH_HEAD:STAMP 2>/dev/null || true)" = "$stamp" ]; then
+            echo "site unchanged (stamp $stamp); skipping deploy"
+            exit 0
+          fi
+          echo "$stamp" > site/STAMP
+
+          # One orphan commit, force-pushed: gh-pages never accumulates history, so the repo
+          # stays at roughly the size of one site snapshot.
+          cd site
+          git init -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "deploy site (stamp ${stamp})"
+          git push --force "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+
+      - name: Fail the daily run when STATS_TOKEN expires within 30 days
+        if: github.event_name != 'schedule' || github.event.schedule == '17 9 * * *'
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          [ -n "$STATS_TOKEN" ] || exit 0
+          exp=$(curl -sI -H "Authorization: Bearer $STATS_TOKEN" https://api.github.com/rate_limit |
+            tr -d '\r' | sed -n 's/^github-authentication-token-expiration: //Ip')
+          [ -n "$exp" ] || { echo "no expiry header (token never expires or is invalid)"; exit 0; }
+          days=$(( ($(date -d "$exp" +%s) - $(date +%s)) / 86400 ))
+          echo "STATS_TOKEN expires $exp ($days days)"
+          if [ "$days" -lt 30 ]; then
+            echo "::error::STATS_TOKEN expires in $days days ($exp). Renew: fine-grained PAT, owner LuluStudioX, all repos, Contents read-only, then gh secret set STATS_TOKEN -R LuluStudioX/lulustudio-hub"
+            exit 1
+          fi
