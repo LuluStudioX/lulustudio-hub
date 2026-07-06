@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bots - LuluStudio</title>
+    <meta name="description" content="Discord and other bots from LuluStudio." />
+    <link rel="canonical" href="https://projects.lulustudio.dk/bots/" />
+    <meta property="og:title" content="Bots - LuluStudio" />
+    <meta property="og:description" content="Discord helpers for Albion Online and Whiteout Survival." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b0a09" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <nav class="site-nav">
+      <div class="page-width site-nav__bar">
+        <a class="site-nav__brand" href="/"><span class="site-nav__mark">§</span> <span class="site-nav__word">lulustudio</span></a>
+        <ul class="site-nav__links">
+          <li><a href="/#projects">projects</a></li>
+          <li><a href="/apx/">apx</a></li>
+          <li><a href="/bots/" aria-current="page">bots</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <header class="hero">
+        <div class="page-width">
+          <a class="hero__back" href="/">← lulustudio</a>
+          <h1>Bots</h1>
+          <p class="hero__lead">Invite LuluStudio bots to your server, or browse the source.</p>
+        </div>
+      </header>
+
+      <section class="section" id="invites">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 01</span>
+            <h2 class="section__title">All bots</h2>
+            <p class="section__lead">Private bots link to source only; invites are added as each bot is published.</p>
+          </header>
+          <div class="card-grid" data-cards="bots"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-width site-footer__row">
+        <span>§ lulustudio · <span data-current-year></span></span>
+        <span>Tools for Albion Online and Whiteout Survival.</span>
+      </div>
+    </footer>
+
+    <script src="/js/data.js"></script>
+    <script src="/js/render.js"></script>
+    <script src="/js/cursor.js"></script>
+  </body>
+</html>

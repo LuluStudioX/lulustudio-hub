@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AlbionPacketExplorer - LuluStudio</title>
+    <meta name="description" content="Desktop tool for decoding and exploring Albion Online network packets. Self-updating via a token-free feed." />
+    <link rel="canonical" href="https://projects.lulustudio.dk/apx/" />
+    <meta property="og:title" content="AlbionPacketExplorer - LuluStudio" />
+    <meta property="og:description" content="Decode and explore Albion Online network packets. Auto-updating desktop app." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b0a09" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <nav class="site-nav">
+      <div class="page-width site-nav__bar">
+        <a class="site-nav__brand" href="/"><span class="site-nav__mark">§</span> <span class="site-nav__word">lulustudio</span></a>
+        <ul class="site-nav__links">
+          <li><a href="/#projects">projects</a></li>
+          <li><a href="/apx/" aria-current="page">apx</a></li>
+          <li><a href="/bots/">bots</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <header class="hero">
+        <div class="page-width">
+          <a class="hero__back" href="/">← lulustudio</a>
+          <p class="hero__eyebrow">
+            <span class="badge badge--accent"><span class="badge__dot" aria-hidden="true">●</span>beta</span>
+            desktop app · velopack
+          </p>
+          <h1>AlbionPacketExplorer</h1>
+          <p class="hero__lead">
+            Avalonia desktop tool for decoding and exploring Albion Online network packets. After the
+            first install it keeps itself up to date automatically.
+          </p>
+        </div>
+      </header>
+
+      <section class="section" id="download">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 01</span>
+            <h2 class="section__title">Download</h2>
+            <p class="section__lead">Pick your platform. Apps update themselves after first install.</p>
+          </header>
+          <div class="download-grid" data-downloads="apx"></div>
+          <p class="fine-print">
+            Installers are mirrored here from the project's release pipeline; if a download 404s, that
+            release has not been mirrored yet (it retries automatically). The apps are not code-signed:
+            a signing certificate is not worth the cost for a small free tool, so Windows SmartScreen
+            or macOS Gatekeeper may warn on first launch. It is safe to allow it.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="updates">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 02</span>
+            <h2 class="section__title">Auto-update</h2>
+            <p class="section__lead">Install once, then it keeps itself current.</p>
+          </header>
+          <div class="prose">
+            <p>
+              After the first install, AlbionPacketExplorer checks for updates on its own and
+              installs them in the background. No account, no sign-in, nothing to configure.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="license">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 03</span>
+            <h2 class="section__title">License</h2>
+            <p class="section__lead">© 2026 LuluStudioX.</p>
+          </header>
+          <div class="prose">
+            <p>
+              AlbionPacketExplorer is developed by LuluStudio. A formal license will be published with
+              the app; until then, all rights are reserved.
+            </p>
+            <p class="fine-print">
+              Built with open-source components under permissive licenses (MIT / BSD): Avalonia,
+              CommunityToolkit.Mvvm, Microsoft.Extensions.DependencyInjection, Velopack,
+              SharpPcap / PacketDotNet, and Lucide icons.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-width site-footer__row">
+        <span>§ lulustudio · <span data-current-year></span></span>
+        <span>Tools for Albion Online and Whiteout Survival.</span>
+      </div>
+    </footer>
+
+    <script src="/js/data.js"></script>
+    <script src="/js/render.js"></script>
+    <script src="/js/cursor.js"></script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LuluStudio - hub</title>
+    <meta name="description" content="LuluStudio hub: project pages, bot invites, downloads, and app update feeds." />
+    <link rel="canonical" href="https://projects.lulustudio.dk/" />
+    <meta property="og:title" content="LuluStudio - hub" />
+    <meta property="og:description" content="Project pages, bot invites, downloads, and self-updating apps." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b0a09" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">skip to content</a>
+
+    <nav class="site-nav">
+      <div class="page-width site-nav__bar">
+        <a class="site-nav__brand" href="/"><span class="site-nav__mark">§</span> <span class="site-nav__word">lulustudio</span></a>
+        <ul class="site-nav__links">
+          <li><a href="#projects" aria-current="page">projects</a></li>
+          <li><a href="/apx/">apx</a></li>
+          <li><a href="/bots/">bots</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main id="main">
+      <header class="hero">
+        <div class="page-width">
+          <p class="hero__eyebrow">
+            <span class="badge badge--live">live <span class="live-count" data-live-count>5</span></span>
+            projects.lulustudio.dk
+          </p>
+          <h1 class="hero__title">Apps, bots, and projects from LuluStudio.</h1>
+          <p class="hero__lead">
+            One public home for LuluStudio: desktop apps, Discord bots, and tooling, mostly for
+            <strong>Albion Online</strong> and <strong>Whiteout Survival</strong>. Browse a project
+            for details, or grab a download.
+          </p>
+          <div class="hero__actions">
+            <a class="button" href="#projects">Browse projects <span aria-hidden="true">→</span></a>
+            <a class="button button--ghost" href="/apx/">AlbionPacketExplorer <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </header>
+
+      <section class="section" id="projects">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 01</span>
+            <h2 class="section__title">Projects</h2>
+            <p class="section__lead">Apps, tools, and sites. Desktop apps update themselves from this hub.</p>
+          </header>
+          <div class="card-grid" data-cards="projects"></div>
+        </div>
+      </section>
+
+      <section class="section" id="bots">
+        <div class="page-width">
+          <header class="section__header">
+            <span class="section__number">§ 02</span>
+            <h2 class="section__title">Bots</h2>
+            <p class="section__lead">Discord helpers for Albion Online and Whiteout Survival.</p>
+          </header>
+          <div class="card-grid" data-cards="bots"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-width site-footer__row">
+        <span>§ lulustudio · <span data-current-year></span></span>
+        <span>Tools for Albion Online and Whiteout Survival.</span>
+      </div>
+    </footer>
+
+    <script src="/js/data.js"></script>
+    <script src="/js/render.js"></script>
+    <script src="/js/cursor.js"></script>
+  </body>
+</html>
