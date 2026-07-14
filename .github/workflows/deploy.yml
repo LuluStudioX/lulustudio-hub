@@ -13,17 +13,13 @@ name: Deploy hub to GitHub Pages
 # Requires (repo Settings -> Secrets and variables -> Actions):
 # Requires the repo to be PUBLIC (Pages on the free plan) and Settings -> Pages
 #   source = Deploy from a branch: gh-pages, / (root).
+#
+# ARCHIVED: Site moved to Unraid. Triggers kept for manual dispatch + APX feed refresh only.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   repository_dispatch:
-    types: [apx-release] # optional: APX CI can POST here for an instant feed refresh
-  schedule:
-    # Safety net only. The instant path is repository_dispatch (apx-release) from APX CI.
-    # GitHub's floor is every 5 min (*/5); scheduled runs are best-effort and can lag under load.
-    - cron: '*/15 * * * *' # every 15 min
+    types: [apx-release] # APX CI can POST here for an instant feed refresh
 
 permissions:
   contents: write # force-push the gh-pages branch
