@@ -13,7 +13,7 @@
 ![Hosting](https://img.shields.io/badge/hosting-GitHub_Pages-d6a052?style=flat-square&labelColor=0b0a09&logo=github)
 ![DNS](https://img.shields.io/badge/dns-Cloudflare-d6a052?style=flat-square&labelColor=0b0a09&logo=cloudflare&logoColor=white)
 
-### [projects.lulustudio.dk](https://projects.lulustudio.dk) &nbsp;·&nbsp; [AlbionPacketExplorer](https://projects.lulustudio.dk/apx/) &nbsp;·&nbsp; [Bots](https://projects.lulustudio.dk/bots/)
+### [projects.lulustudio.dk](https://projects.lulustudio.dk) &nbsp;·&nbsp; [AO-SAGE](https://ao-sage.com) &nbsp;·&nbsp; [AlbionPacketExplorer](https://projects.lulustudio.dk/apx/) &nbsp;·&nbsp; [Bots](https://projects.lulustudio.dk/#bots)
 
 </div>
 
@@ -21,21 +21,22 @@
 
 ## What is this
 
-The source of [projects.lulustudio.dk](https://projects.lulustudio.dk). It is a small static site written by hand, with no framework and no build step, that lists LuluStudio's projects and bots and hosts desktop downloads. Each card shows live GitHub data (language, commit activity, last push) and opens a details view with a commit chart and a language breakdown.
+The source of [projects.lulustudio.dk](https://projects.lulustudio.dk). It is a small static site written by hand, with no framework and no build step, that lists LuluStudio's projects and bots and links their desktop downloads. Each card shows live GitHub data (language, commit activity, last push) and opens a details view with a commit chart and a language breakdown.
 
 ## What's inside
 
 ### Apps and projects
 | Project | What it does | Stack |
 |---|---|---|
-| [AlbionPacketExplorer (APX)](https://projects.lulustudio.dk/apx/) | Captures Albion's network traffic live and decodes every packet, for protocol reverse engineering. Updates itself. | C# · Avalonia |
+| [AO-SAGE](https://ao-sage.com) | Albion Online companion platform with daily production bonuses, market prices, Destiny boards, island management, a Discord bot and a desktop and Android companion app. | TypeScript · SvelteKit · C# |
+| [AlbionPacketExplorer (APX)](https://projects.lulustudio.dk/apx/) | Captures Albion's network traffic live and decodes every packet, for protocol reverse engineering. Open source (MIT) and updates itself. | C# · Avalonia |
 | WOS - Java App | Automates Whiteout Survival by driving Android emulators. | Java |
 | GitRekt | Whiteout Survival automation for resources, combat, city upgrades and alliance tasks on Android / LDPlayer. | Python |
 | SkatMate | Calculators and plain-language guides for non-Danish residents filing taxes via skat.dk. | Early development |
-| OpenToWork | Self-hosted job hunt pipeline: scrapes job portals, scores fit, and drafts tailored CVs and cover letters with Claude Code. | Bun · SQLite |
+| OpenToWork | Job search helper that scrapes job portals, scores each posting against a candidate profile, and tracks the applications sent. | Bun · SQLite |
 
 ### Bots
-Discord bots, each self-hosted in Docker. They are also on the [bots page](https://projects.lulustudio.dk/bots/).
+Discord bots, each self-hosted in Docker.
 
 | Bot | What it does | Stack |
 |---|---|---|
@@ -53,4 +54,4 @@ flowchart LR
   C --> S(("projects.lulustudio.dk"))
 ```
 
-GitHub Actions publishes [`site/`](site/) to GitHub Pages on every push and once an hour, and Cloudflare points the domain at it. Each run regenerates [`site/js/data.js`](site/js/data.js) from the GitHub API, so the cards show current commit activity. Desktop apps update themselves from `projects.lulustudio.dk/apx/feed`, which a Cloudflare Worker serves from the latest GitHub release.
+GitHub Actions publishes [`site/`](site/) to GitHub Pages on every push and once an hour, and Cloudflare points the domain at it. Each run regenerates [`site/js/data.js`](site/js/data.js) from the GitHub API, so the cards show current commit activity. Download buttons link straight to the latest GitHub release, and the desktop apps update themselves from there.

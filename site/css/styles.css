@@ -153,7 +153,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 .site-nav__links { display: flex; gap: var(--space-lg); list-style: none; }
 .site-nav__links a { font-family: var(--font-mono); font-size: 0.82rem; color: var(--color-text-muted); letter-spacing: 0.02em; }
 .site-nav__links a:hover,
-.site-nav__links a[aria-current='page'] { color: var(--color-accent); }
 
 /* ── hero ── */
 .hero { padding-block: clamp(3rem, 11vw, 8rem) var(--section-padding); }
@@ -360,6 +359,36 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 .lang-bar__seg--1 { background: var(--color-live); }
 .lang-bar__seg--2 { background: #7e8ab0; }
 .lang-bar__seg--3 { background: var(--color-warn); }
+
+/* hero commit strip */
+.activity-strip { margin-top: var(--space-xl); max-width: 640px; }
+.activity-strip__bars {
+  display: flex; align-items: flex-end; gap: 2px; height: 48px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
+  mask-image: linear-gradient(to right, transparent, #000 45%);
+}
+.activity-strip__bar {
+  flex: 1; min-width: 2px; background: var(--color-accent); border-radius: 1px 1px 0 0; opacity: 0.85;
+  transform-origin: bottom; animation: activity-rise 320ms ease-out both; animation-delay: calc(var(--bar-index) * 10ms);
+}
+.activity-strip__axis {
+  position: relative; height: 1.2em; margin-top: var(--space-xs);
+  font-family: var(--font-mono); font-size: 0.62rem; color: var(--color-text-faint);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 45%);
+  mask-image: linear-gradient(to right, transparent, #000 45%);
+}
+.activity-strip__axis span { position: absolute; top: 0; padding-left: 4px; border-left: 1px solid var(--color-border); }
+.activity-strip__caption { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-text-faint); margin-top: var(--space-xs); min-height: 1.4em; }
+@media (hover: hover) {
+  .activity-strip__bar { transition: opacity 0.12s ease; }
+  .activity-strip__bars:hover .activity-strip__bar { opacity: 0.35; }
+  .activity-strip__bars:hover .activity-strip__bar:hover { opacity: 1; }
+}
+@keyframes activity-rise { from { transform: scaleY(0); } }
+@keyframes activity-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .activity-strip__bar { animation: activity-fade 200ms ease-out both; animation-delay: 0s; }
+}
 
 /* commit sparkline */
 .spark { display: flex; align-items: flex-end; gap: 2px; height: 56px; padding: var(--space-xs); background: var(--color-elevated); border: 1px solid var(--color-border); border-radius: var(--radius-md); }

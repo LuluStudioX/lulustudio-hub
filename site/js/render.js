@@ -10,30 +10,75 @@ function renderHub() {
   fillEveryCardContainer();
   fillEveryDownloadContainer();
   stampLiveCount();
+  fillActivityStrip();
   stampCurrentYear();
-  refreshCardVersions(); // live version chips read from the served feed
   openDetailsFromHash(); // deep-link: /#slug opens that card's details
 }
 
-function refreshCardVersions() {
-  document.querySelectorAll('[data-live-version][data-feed]').forEach(async (el) => {
-    const version = await fetchFeedVersion(el.dataset.feed);
-    if (version) el.textContent = version;
+function fillActivityStrip() {
+  const slot = document.querySelector('[data-activity-strip]');
+  if (!slot) return;
+  const weekly = combinedWeeklyActivity();
+  if (sum(weekly) === 0) return;
+  slot.innerHTML = renderActivityStrip(weekly);
+  showHoveredWeekInCaption(slot);
+}
+
+function combinedWeeklyActivity() {
+  const tracked = [...HUB.projects, ...HUB.bots].filter((item) => Array.isArray(item.activity));
+  return Array.from({ length: 52 }, (_, week) => sum(tracked.map((item) => item.activity[week] || 0)));
+}
+
+function renderActivityStrip(weekly) {
+  const peak = Math.max(...weekly);
+  const bars = weekly
+    .map((count, index) => {
+      const height = Math.max(4, Math.round((count / peak) * 100));
+      const label = `Week of ${formatDayMonth(weekStart(weekly.length, index))} · ${count} commit${count === 1 ? '' : 's'}`;
+      return `<span class="activity-strip__bar" style="height:${height}%;--bar-index:${index}" data-week-label="${escapeAttribute(label)}"></span>`;
+    })
+    .join('');
+  const summary = `${sum(weekly).toLocaleString('en')} commits in the last year across every project, and plenty of the work never makes it to git.`;
+  return `
+    <div class="activity-strip__bars" role="img" aria-label="Weekly commits across all projects over the last year">${bars}</div>
+    <div class="activity-strip__axis" aria-hidden="true">${renderMonthTicks(weekly.length)}</div>
+    <p class="activity-strip__caption" data-activity-caption data-summary="${escapeAttribute(summary)}">${escapeHtml(summary)}</p>`;
+}
+
+function renderMonthTicks(weekCount) {
+  const minWeeksBetweenTicks = 3;
+  const ticks = [];
+  for (let index = 0; index < weekCount; index++) {
+    const month = weekStart(weekCount, index).getMonth();
+    const previousMonth = index > 0 ? weekStart(weekCount, index - 1).getMonth() : null;
+    const lastTick = ticks[ticks.length - 1];
+    if (month !== previousMonth && (!lastTick || index - lastTick.index >= minWeeksBetweenTicks)) ticks.push({ index, month });
+  }
+  return ticks
+    .map(({ index, month }) => `<span style="left:${(index / weekCount) * 100}%">${MONTH_NAMES[month]}</span>`)
+    .join('');
+}
+
+function showHoveredWeekInCaption(slot) {
+  const caption = slot.querySelector('[data-activity-caption]');
+  slot.addEventListener('mouseover', (event) => {
+    const bar = event.target.closest('[data-week-label]');
+    if (bar) caption.textContent = bar.dataset.weekLabel;
+  });
+  slot.addEventListener('mouseleave', () => {
+    caption.textContent = caption.dataset.summary;
   });
 }
 
-// Read the current version from a served feed manifest (same-origin). Returns 'vX.Y.Z' or null.
-async function fetchFeedVersion(feedBase) {
-  if (typeof fetch !== 'function') return null;
-  try {
-    const response = await fetch(`${feedBase}/releases.win-x64.json`, { cache: 'no-store' });
-    if (!response.ok) return null;
-    const manifest = await response.json();
-    const version = manifest.Assets && manifest.Assets[0] && manifest.Assets[0].Version;
-    return version ? `v${String(version).replace(/^v/, '')}` : null;
-  } catch {
-    return null;
-  }
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+function weekStart(weekCount, index) {
+  return new Date(Date.now() - (weekCount - 1 - index) * WEEK_MS);
+}
+
+function formatDayMonth(date) {
+  return `${date.getDate()} ${MONTH_NAMES[date.getMonth()]}`;
 }
 
 function stampLiveCount() {
@@ -48,7 +93,7 @@ function fillEveryCardContainer() {
 function fillCardContainer(container) {
   const collectionName = container.dataset.cards;
   const limit = readLimit(container.dataset.limit);
-  const items = sortedByOrder(HUB[collectionName]).slice(0, limit);
+  const items = sortedForDisplay(HUB[collectionName]).slice(0, limit);
   container.innerHTML = items.length
     ? items.map((item) => renderCard(toCardModel(collectionName, item))).join('')
     : renderEmptyState();
@@ -80,7 +125,6 @@ function toCardModel(collectionName, item) {
     icon: cardIcon(item),
     badges: cardBadges(item),
     release: item.release,
-    feed: item.feed,
     statline: statline(item.stats),
     tags: techStack(item),
     actions: cardActions(item, isBot),
@@ -115,8 +159,8 @@ function cardActions(item, isBot) {
 
 /* ── card model -> HTML ───────────────────────────────────────── */
 
-function renderCard({ collection, name, description, icon, badges, release, feed, statline, tags, actions }) {
-  const meta = badges.map(renderBadge).join('') + renderVersionBadge(release, feed);
+function renderCard({ collection, name, description, icon, badges, release, statline, tags, actions }) {
+  const meta = badges.map(renderBadge).join('') + renderVersionBadge(release);
   return `
     <article class="card">
       ${meta ? `<div class="card__meta">${meta}</div>` : ''}
@@ -141,11 +185,9 @@ function renderTitle(collection, name) {
   return `<button type="button" class="card__title-btn" data-details-collection="${escapeAttribute(collection)}" data-details-name="${escapeAttribute(name)}">${escapeHtml(name)} <span class="card__title-arrow" aria-hidden="true">→</span></button>`;
 }
 
-// A version chip on the card face. Carries the live-fetch hook when a feed is served.
-function renderVersionBadge(release, feed) {
+function renderVersionBadge(release) {
   if (!release || !release.version) return '';
-  const liveAttrs = feed ? ` data-live-version data-feed="${escapeAttribute(feed)}"` : '';
-  return `<span class="badge badge--version"${liveAttrs}>${escapeHtml(release.version)}</span>`;
+  return `<span class="badge badge--version">${escapeHtml(release.version)}</span>`;
 }
 
 function renderBadge({ label, variant, dot, icon }) {
@@ -219,20 +261,6 @@ function openDetails(collection, name) {
   if (!dialog.open) dialog.showModal();
   setHash(item.slug);
   dialog.querySelector('[data-close]').focus();
-  refreshLiveVersion(dialog); // override the baked release version with the live feed's
-}
-
-// The baked release version is a snapshot. When a card has a served feed, read the
-// current version straight from it (same-origin) so the panel never goes stale.
-async function refreshLiveVersion(dialog) {
-  const line = dialog.querySelector('.details__release[data-feed]');
-  if (!line) return;
-  const version = await fetchFeedVersion(line.dataset.feed);
-  if (!version) return; // offline or feed missing: keep the baked snapshot
-  const slot = line.querySelector('[data-release-version]');
-  const meta = line.querySelector('[data-release-meta]');
-  if (slot) slot.textContent = version;
-  if (meta) meta.textContent = 'live';
 }
 
 function openDetailsBySlug(slug) {
@@ -281,6 +309,7 @@ function renderDetails(collection, item) {
       ${renderFacts(item.facts)}
       ${renderReleaseLine(item)}
       ${renderModalDownloads(item.downloads)}
+      ${renderAppAccess(item.appAccess)}
       ${renderStatGrid(item.stats)}
       ${renderLanguageBar(item.languages)}
       ${renderActivityChart(item.activity)}
@@ -297,8 +326,7 @@ function renderDetails(collection, item) {
 function renderReleaseLine(item) {
   const release = item.release;
   if (!release || !release.version) return '';
-  const feedAttr = item.feed ? ` data-feed="${escapeAttribute(item.feed)}"` : '';
-  return `<p class="details__release"${feedAttr}>Latest release <strong data-release-version>${escapeHtml(release.version)}</strong> · <span data-release-meta>${escapeHtml(formatRelativeDate(release.date))}</span></p>`;
+  return `<p class="details__release">Latest release <strong>${escapeHtml(release.version)}</strong> · ${escapeHtml(formatRelativeDate(release.date))}</p>`;
 }
 
 function renderModalDownloads(downloads) {
@@ -310,8 +338,20 @@ function renderModalDownloads(downloads) {
     </div>`;
 }
 
+function renderAppAccess(access) {
+  if (!access) return '';
+  return `
+    <div class="details__block">
+      <p class="details__heading">Get the app <span class="details__heading-note">${escapeHtml(access.note)}</span></p>
+      ${renderFacts(access.platforms)}
+      <div class="details__links">
+        <a class="button" href="${escapeAttribute(access.url)}" target="_blank" rel="noopener">${escapeHtml(access.label)} ↗</a>
+      </div>
+    </div>`;
+}
+
 function renderModalNav(collection, item) {
-  const siblings = sortedByOrder(HUB[collection]);
+  const siblings = sortedForDisplay(HUB[collection]);
   const index = siblings.findIndex((entry) => entry.slug === item.slug);
   return `
     <nav class="details__nav">
@@ -441,9 +481,16 @@ function statline(stats) {
   return parts;
 }
 
-function sortedByOrder(items) {
-  const fallbackOrder = 100;
-  return [...items].sort((a, b) => (a.order ?? fallbackOrder) - (b.order ?? fallbackOrder));
+function sortedForDisplay(items) {
+  return [...items].sort((a, b) => pinnedFirst(a, b) || lastActivity(b).localeCompare(lastActivity(a)));
+}
+
+function pinnedFirst(a, b) {
+  return Number(Boolean(b.pinned)) - Number(Boolean(a.pinned));
+}
+
+function lastActivity(item) {
+  return (item.stats && item.stats.updated) || '';
 }
 
 function findByName(collectionName, name, value, key) {

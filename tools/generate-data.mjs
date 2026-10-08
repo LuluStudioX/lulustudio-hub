@@ -120,9 +120,9 @@ async function enrich(entry) {
 
 // Field order mirrors the historical generator output so diffs stay readable.
 const fieldOrder = [
-  "name", "slug", "blurb", "summary", "release", "feed", "icon", "facts", "repo", "site",
-  "private", "fork", "archived", "status", "page", "downloads", "tags", "stats",
-  "languages", "activity", "order",
+  "name", "slug", "pinned", "blurb", "summary", "release", "icon", "facts", "repo", "site",
+  "private", "fork", "archived", "status", "page", "downloads", "appAccess", "tags", "stats",
+  "languages", "activity",
 ];
 const ordered = (e) =>
   Object.fromEntries(fieldOrder.filter((f) => e[f] !== undefined).map((f) => [f, e[f]]));

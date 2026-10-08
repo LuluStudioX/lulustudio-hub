@@ -78,8 +78,12 @@ jobs:
           echo "projects.lulustudio.dk" > site/CNAME
           touch site/.nojekyll
 
+          asset_version="${GITHUB_SHA::8}"
+          find site -name '*.html' -exec sed -i -E "s#((href|src)=\"/[^\"]+\.(css|js))\"#\1?v=${asset_version}\"#g" {} +
+          sed -i "s#@import './theme.css';#@import './theme.css?v=${asset_version}';#" site/css/styles.css
+
           # Content stamp over every served byte. If gh-pages already carries this exact stamp,
-          # there is nothing to deploy - the 15-min schedule is a safety net and usually no-ops.
+          # there is nothing to deploy, so most hourly runs no-op.
           stamp=$(cd site && find . -type f ! -name STAMP -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           if git fetch --depth 1 origin gh-pages 2>/dev/null && \
              [ "$(git show FETCH_HEAD:STAMP 2>/dev/null || true)" = "$stamp" ]; then
